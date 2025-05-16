@@ -1,1 +1,2 @@
 # smartbank360
+Smart Bank 360 is a modern, secure, and intuitive online banking platform built with React and Firebase. It offers users a seamless way to manage finances, perform transactions, track spending, and explore financial education—all from a unified dashboard.

@@ -1,150 +1,159 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Navigate, Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { SparklesIcon, ArrowRightCircleIcon } from '@heroicons/react/24/solid';
 
 const Home = () => {
+  const { user, loading: authLoading } = useAuth();
+  const [offers, setOffers] = useState([]);
+
+  // Mock data for transactions - empty list
+  const transactions = [];
+
+  // Mock balance calculations
+  const balance = 0;
+  const monthlyIncome = 0;
+  const monthlyExpenses = 0;
+
+  useEffect(() => {
+    // Sample offers hardcoded, no change
+    const sampleOffers = [
+      {
+        id: 1,
+        title: 'Get 10% Cashback on Fuel',
+        description: 'Pay with SmartBank card at Shell stations and enjoy instant 10% cashback.',
+      },
+      {
+        id: 2,
+        title: 'Save Big on Jumia Fridays',
+        description: 'Use your SmartBank wallet on Jumia and unlock exclusive Friday discounts.',
+      },
+      {
+        id: 3,
+        title: 'Travel Rewards',
+        description: 'Book flights with SmartBank and earn reward points on every booking.',
+      },
+    ];
+    setOffers(sampleOffers);
+  }, []);
+
+  if (authLoading) return (
+    <div className="flex justify-center items-center min-h-screen p-10">
+      <svg className="animate-spin h-10 w-10 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle
+          className="opacity-25"
+          cx="12" cy="12" r="10"
+          stroke="currentColor"
+          strokeWidth="4"
+        ></circle>
+        <path
+          className="opacity-75"
+          fill="currentColor"
+          d="M4 12a8 8 0 018-8v8H4z"
+        ></path>
+      </svg>
+    </div>
+  );
+
+  if (!user) return <Navigate to="/login" />;
+
   return (
-    <div className="bg-gray-50 text-gray-800">
-      {/* Hero Section */}
-      <section className="bg-gradient-to-r from-indigo-600 to-blue-500 text-white p-10 text-center">
-        <h1 className="text-4xl md:text-5xl font-bold mb-4">
-          Your Smart Financial Partner 24/7
-        </h1>
-        <p className="text-lg md:text-xl mb-6">Smart Bank 360 – Revolutionizing the way you bank.</p>
-        <div className="space-x-4">
-          <Link to="/login" className="bg-white text-indigo-600 px-6 py-2 rounded-lg font-semibold hover:bg-gray-100">
-            Login
-          </Link>
-          <Link to="/signup" className="bg-indigo-700 px-6 py-2 rounded-lg font-semibold hover:bg-indigo-800">
-            Get Started
-          </Link>
-        </div>
-      </section>
+    <div className="min-h-screen bg-gray-100 p-6 space-y-8">
+      {/* Welcome Message */}
+      <div className="text-3xl font-bold text-gray-800">
+        Welcome back, {user.displayName || user.email.split('@')[0]}
+      </div>
 
-      {/* Services Section */}
-      <section className="py-12 px-6 max-w-6xl mx-auto">
-        <h2 className="text-3xl font-bold text-center mb-10">Our Services</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {[
-            ['Personal & Business Accounts', 'image'],
-            ['Loans & Credit', 'image'],
-            ['Investments', 'image'],
-            ['Digital Wallet', 'image'],
-            ['Mobile Banking App', 'image'],
-            ['24/7 Support', 'image'],
-          ].map(([title, icon]) => (
-            <div key={title} className="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-all">
-              <div className="text-4xl mb-4">{icon}</div>
-              <h3 className="text-xl font-semibold mb-2">{title}</h3>
-              <p className="text-gray-600">Learn more about how we make banking easier for you.</p>
+      {/* User Overview Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="bg-white p-4 rounded-lg shadow border">
+          <p className="text-gray-500">Total Balance</p>
+          <p className="text-xl font-semibold text-green-600">
+            KES {balance.toLocaleString()}
+          </p>
+        </div>
+        <div className="bg-white p-4 rounded-lg shadow border">
+          <p className="text-gray-500">Monthly Income</p>
+          <p className="text-xl font-semibold text-blue-600">
+            KES {monthlyIncome.toLocaleString()}
+          </p>
+        </div>
+        <div className="bg-white p-4 rounded-lg shadow border">
+          <p className="text-gray-500">Monthly Expenses</p>
+          <p className="text-xl font-semibold text-red-500">
+            KES {monthlyExpenses.toLocaleString()}
+          </p>
+        </div>
+      </div>
+
+      {/* Offers Section */}
+      <div>
+        <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+          <SparklesIcon className="h-6 w-6 text-yellow-500" />
+          Exclusive Offers
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {offers.map((offer) => (
+            <div
+              key={offer.id}
+              className="bg-white shadow rounded-lg p-4 border border-gray-200 transition hover:shadow-lg"
+            >
+              <h3 className="font-semibold text-lg text-blue-600">{offer.title}</h3>
+              <p className="text-sm text-gray-600">{offer.description}</p>
             </div>
           ))}
         </div>
-      </section>
+      </div>
 
-      {/* Why Choose Us */}
-      <section className="bg-white py-12 px-6">
-        <h2 className="text-3xl font-bold text-center mb-10">Why Choose Smart Bank 360?</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto">
-          <div>
-            <h4 className="text-xl font-semibold mb-2">Security</h4>
-            <p className="text-gray-700 mb-4">Your data and funds are protected with military-grade encryption.</p>
-
-            <h4 className="text-xl font-semibold mb-2">24/7 Support</h4>
-            <p className="text-gray-700 mb-4">Our team is always ready to help you—day or night.</p>
-          </div>
-          <div>
-            <h4 className="text-xl font-semibold mb-2">Low Fees</h4>
-            <p className="text-gray-700 mb-4">No hidden charges. Transparent and fair pricing always.</p>
-
-            <h4 className="text-xl font-semibold mb-2">Fast Transactions</h4>
-            <p className="text-gray-700 mb-4">Instant money transfers and real-time account updates.</p>
-          </div>
-        </div>
-      </section>
-
-      {/* Stats & Highlights */}
-      <section className="bg-indigo-50 py-12 px-6">
-        <h2 className="text-3xl font-bold text-center mb-10">Smart Stats</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center max-w-5xl mx-auto">
-          <div>
-            <p className="text-4xl font-bold text-indigo-600">50k+</p>
-            <p className="text-gray-700">Active Users</p>
-          </div>
-          <div>
-            <p className="text-4xl font-bold text-indigo-600">$100M+</p>
-            <p className="text-gray-700">Processed</p>
-          </div>
-          <div>
-            <p className="text-4xl font-bold text-indigo-600">100+</p>
-            <p className="text-gray-700">Business Partners</p>
-          </div>
-          <div>
-            <p className="text-4xl font-bold text-indigo-600">98%</p>
-            <p className="text-gray-700">Customer Satisfaction</p>
-          </div>
-        </div>
-      </section>
-
-      {/* Testimonials */}
-      <section className="bg-white py-12 px-6 max-w-6xl mx-auto">
-        <h2 className="text-3xl font-bold text-center mb-10">What Our Users Say</h2>
-        <div className="grid md:grid-cols-2 gap-8">
-          <blockquote className="border-l-4 border-indigo-600 pl-4 italic">
-            “Smart Bank 360 has completely changed how I manage my business finances.”
-            <br />
-            <span className="font-semibold text-indigo-700 mt-2 block">– Sarah, Business Owner</span>
-          </blockquote>
-          <blockquote className="border-l-4 border-indigo-600 pl-4 italic">
-            “The mobile app is fast and secure. I use it every day!”
-            <br />
-            <span className="font-semibold text-indigo-700 mt-2 block">– Kevin, Freelancer</span>
-          </blockquote>
-        </div>
-      </section>
-
-      {/* Feature Tour */}
-      <section className="bg-indigo-100 py-12 px-6">
-        <h2 className="text-3xl font-bold text-center mb-10">Take a Quick Tour</h2>
-        <div className="flex justify-center">
-          <div className="w-full md:w-3/4 rounded-lg overflow-hidden shadow-lg">
-            <img
-              src="https://source.unsplash.com/featured/?banking,finance"
-              alt="Feature demo"
-              className="w-full h-64 object-cover"
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* Educational Content */}
-      <section className="bg-white py-12 px-6 max-w-6xl mx-auto">
-        <h2 className="text-3xl font-bold text-center mb-10">Financial Education</h2>
-        <div className="grid md:grid-cols-3 gap-8">
-          {[
-            ['Investment Guides', 'Learn the basics of investing and growing your money.'],
-            ['Financial Tips', 'Practical advice for managing your income, expenses, and goals.'],
-            ['FAQs', 'Answers to common questions about Smart Bank 360.'],
-          ].map(([title, desc]) => (
-            <div key={title} className="bg-gray-100 p-6 rounded-lg shadow hover:shadow-md transition">
-              <h4 className="text-xl font-semibold mb-2">{title}</h4>
-              <p className="text-gray-700">{desc}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* CTA Buttons */}
-      <section className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-12 px-6 text-center">
-        <h2 className="text-3xl font-bold mb-4">Ready to take control of your finances?</h2>
-        <div className="space-x-4">
-          <Link to="/signup" className="bg-white text-blue-600 px-6 py-2 rounded font-semibold hover:bg-gray-100">
-            Create Account
-          </Link>
-          <Link to="/plans" className="bg-blue-700 px-6 py-2 rounded font-semibold hover:bg-blue-800">
-            Compare Plans
+      {/* Recent Transactions */}
+      <div>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-2xl font-bold">Recent Transactions</h2>
+          <Link
+            to="/transactions"
+            className="text-blue-600 flex items-center hover:underline"
+          >
+            View All
+            <ArrowRightCircleIcon className="w-5 h-5 ml-1" />
           </Link>
         </div>
-      </section>
+        {transactions.length === 0 ? (
+          <p className="text-gray-600">No recent transactions found.</p>
+        ) : (
+          <div className="bg-white shadow rounded-lg overflow-hidden">
+            <ul className="divide-y divide-gray-200">
+              {transactions.slice(0, 5).map((tx) => (
+                <li key={tx.id} className="px-4 py-4 flex justify-between text-sm">
+                  <div>
+                    <p className="font-medium text-gray-800">
+                      {tx.description || 'Transaction'}
+                    </p>
+                    <p className="text-gray-500">
+                      {new Date(tx.timestamp).toLocaleDateString()}
+                    </p>
+                    <p className="text-gray-400 text-xs">
+                      From: {tx.from || 'Unknown'} | To: {tx.to || 'Unknown'}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p
+                      className={`font-semibold ${
+                        tx.type === 'expense' ? 'text-red-500' : 'text-green-500'
+                      }`}
+                    >
+                      {tx.type === 'expense' ? '-' : '+'} KES{' '}
+                      {Math.abs(tx.amount).toLocaleString()}
+                    </p>
+                    <p className="text-gray-500 text-xs">
+                      {tx.category || 'General'}
+                    </p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
