@@ -7,16 +7,62 @@ const Home = () => {
   const { user, loading: authLoading } = useAuth();
   const [offers, setOffers] = useState([]);
 
-  // Mock data for transactions - empty list
-  const transactions = [];
+  // Simulated transaction data
+  const transactions = [
+    {
+      id: 1,
+      type: 'income',
+      amount: 50000,
+      description: 'Salary for May',
+      category: 'Salary',
+      from: 'Vanguard wealth markets',
+      to: 'Your Account',
+      timestamp: '2025-05-01T10:00:00Z',
+    },
+    {
+      id: 2,
+      type: 'expense',
+      amount: 7500,
+      description: 'Rent Payment',
+      category: 'Housing',
+      from: 'Your Account',
+      to: 'Landlord',
+      timestamp: '2025-05-03T08:30:00Z',
+    },
+    {
+      id: 3,
+      type: 'expense',
+      amount: 3200,
+      description: 'Supermarket Groceries',
+      category: 'Groceries',
+      from: 'Your Account',
+      to: 'Naivas',
+      timestamp: '2025-05-05T13:45:00Z',
+    },
+    {
+      id: 4,
+      type: 'income',
+      amount: 12000,
+      description: 'Freelance Project',
+      category: 'Side Hustle',
+      from: 'Client XYZ',
+      to: 'Your Account',
+      timestamp: '2025-05-07T11:20:00Z',
+    },
+  ];
 
-  // Mock balance calculations
-  const balance = 0;
-  const monthlyIncome = 0;
-  const monthlyExpenses = 0;
+  // Calculated financial figures
+  const monthlyIncome = transactions
+    .filter((tx) => tx.type === 'income')
+    .reduce((sum, tx) => sum + tx.amount, 0);
+
+  const monthlyExpenses = transactions
+    .filter((tx) => tx.type === 'expense')
+    .reduce((sum, tx) => sum + tx.amount, 0);
+
+  const balance = monthlyIncome - monthlyExpenses;
 
   useEffect(() => {
-    // Sample offers hardcoded, no change
     const sampleOffers = [
       {
         id: 1,
@@ -37,23 +83,15 @@ const Home = () => {
     setOffers(sampleOffers);
   }, []);
 
-  if (authLoading) return (
-    <div className="flex justify-center items-center min-h-screen p-10">
-      <svg className="animate-spin h-10 w-10 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-        <circle
-          className="opacity-25"
-          cx="12" cy="12" r="10"
-          stroke="currentColor"
-          strokeWidth="4"
-        ></circle>
-        <path
-          className="opacity-75"
-          fill="currentColor"
-          d="M4 12a8 8 0 018-8v8H4z"
-        ></path>
-      </svg>
-    </div>
-  );
+  if (authLoading)
+    return (
+      <div className="flex justify-center items-center min-h-screen p-10">
+        <svg className="animate-spin h-10 w-10 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+        </svg>
+      </div>
+    );
 
   if (!user) return <Navigate to="/login" />;
 
@@ -88,8 +126,7 @@ const Home = () => {
 
       {/* Offers Section */}
       <div>
-        <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
-          <SparklesIcon className="h-6 w-6 text-yellow-500" />
+        <h2 className="text-2xl font-bold mb-4 flex items-center">
           Exclusive Offers
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">

@@ -12,7 +12,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
     >
       {/* Sidebar */}
       <div
-        className="w-72 h-full bg-gray-900 text-white z-50 transform transition-transform duration-300 ease-in-out relative overflow-y-auto"
+        className="w-56 h-full bg-gray-900 text-white z-50 transform transition-transform duration-300 ease-in-out relative overflow-y-auto"
         onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside the sidebar
       >
         {/* Close button */}
@@ -27,18 +27,13 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
           Sidebar Menu
         </div>
 
-        <ul className="p-4 space-y-4">
+        <ul className="p-4 space-y-4 text-sm">
           <li><Link to="/" className="hover:text-blue-400">Home</Link></li>
 
           {/* Financial Tools */}
           <li className="pt-4 font-semibold text-gray-400">Financial Tools</li>
           <li><Link to="/budget-planner" className="hover:text-blue-400">Budget Planner</Link></li>
-          <li>
-  <Link to="/spending-insights" className="hover:text-blue-400">
-    Spending Insights
-  </Link>
-</li>
-
+          <li><Link to="/spending-insights" className="hover:text-blue-400">Spending Insights</Link></li>
           <li><Link to="/savings-goals" className="hover:text-blue-400">Savings Goals</Link></li>
           <li><Link to="/loan-calculator" className="hover:text-blue-400">Loan Calculator</Link></li>
           <li><Link to="/currency-converter" className="hover:text-blue-400">Currency Converter</Link></li>

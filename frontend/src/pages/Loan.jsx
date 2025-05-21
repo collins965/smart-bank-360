@@ -3,48 +3,32 @@ import {
   getAuth,
   onAuthStateChanged
 } from "firebase/auth";
-import {
-  getFirestore,
-  collection,
-  addDoc,
-  query,
-  where,
-  getDocs,
-  serverTimestamp,
-} from "firebase/firestore";
+
+// localStorage
+const LOCAL_STORAGE_KEY = "mockLoans";
 
 const Loan = () => {
-  // Firebase setup
   const auth = getAuth();
-  const db = getFirestore();
-
-  // User state
   const [user, setUser] = useState(null);
 
-  // Form inputs
   const [loanAmount, setLoanAmount] = useState("");
   const [loanTerm, setLoanTerm] = useState("");
   const [monthlyIncome, setMonthlyIncome] = useState("");
   const [currentDebts, setCurrentDebts] = useState("");
 
-  // Eligibility & calculation
   const [eligibility, setEligibility] = useState(null);
   const [monthlyPayment, setMonthlyPayment] = useState(null);
   const [totalInterest, setTotalInterest] = useState(null);
   const [totalPayment, setTotalPayment] = useState(null);
 
-  // UI states
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
 
-  // User's previous loans
   const [loanHistory, setLoanHistory] = useState([]);
 
-  // Constants
-  const interestRateAnnual = 0.12; // 12% fixed annual interest
+  const interestRateAnnual = 0.12;
 
-  // Monitor auth state
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       if (currentUser) {
@@ -55,125 +39,95 @@ const Loan = () => {
         setLoanHistory([]);
       }
     });
-
     return () => unsubscribe();
   }, []);
 
-  // Fetch user's previous loans
-  const fetchUserLoans = async (uid) => {
-    const loansRef = collection(db, "loans");
-    const q = query(loansRef, where("userId", "==", uid));
-    try {
-      const querySnapshot = await getDocs(q);
-      const loans = [];
-      querySnapshot.forEach((doc) => {
-        loans.push({ id: doc.id, ...doc.data() });
-      });
-      setLoanHistory(loans);
-    } catch (err) {
-      console.error("Error fetching loans:", err);
-    }
+  const fetchUserLoans = (uid) => {
+    const stored = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY)) || [];
+    const userLoans = stored.filter((loan) => loan.userId === uid);
+    setLoanHistory(userLoans);
   };
 
-  // Loan payment calculation (annuity formula)
   const calculateMonthlyPayment = (principal, months, annualRate) => {
     const monthlyRate = annualRate / 12;
     if (monthlyRate === 0) return principal / months;
-    return (
-      (principal * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -months))
-    );
+    return (principal * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -months));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setEligibility(null);
+    setSuccessMessage("");
     setMonthlyPayment(null);
     setTotalInterest(null);
     setTotalPayment(null);
-    setSuccessMessage("");
 
     if (!user) {
       setError("You must be logged in to request a loan.");
       return;
     }
 
-    // Parse inputs
     const principal = parseFloat(loanAmount);
     const months = parseInt(loanTerm, 10);
     const income = parseFloat(monthlyIncome);
     const debts = parseFloat(currentDebts) || 0;
 
-    // Validation
     if (
-      isNaN(principal) ||
-      principal <= 0 ||
-      isNaN(months) ||
-      months <= 0 ||
-      isNaN(income) ||
-      income <= 0 ||
-      debts < 0
+      isNaN(principal) || principal <= 0 ||
+      isNaN(months) || months <= 0 || months > 60 ||
+      isNaN(income) || income <= 0 || debts < 0
     ) {
-      setError("Please enter valid positive numbers in all fields.");
-      return;
-    }
-    if (months > 60) {
-      setError("Loan term cannot exceed 60 months.");
+      setError("Please fill all fields with valid positive values. Term max is 60 months.");
       return;
     }
 
-    // Calculate monthly payment
     const payment = calculateMonthlyPayment(principal, months, interestRateAnnual);
-
-    // Calculate debt-to-income ratio with new loan payment
     const dtiRatio = (debts + payment) / income;
+    const interestPaid = payment * months - principal;
 
-    if (dtiRatio <= 0.4) {
-      // Eligible
-      setEligibility(true);
-      setMonthlyPayment(payment);
-      const interestPaid = payment * months - principal;
-      setTotalInterest(interestPaid);
-      setTotalPayment(payment * months);
+    const eligible = dtiRatio <= 0.4;
+    setEligibility(eligible);
+    setMonthlyPayment(payment);
+    setTotalInterest(interestPaid);
+    setTotalPayment(payment * months);
 
-      // Save loan request to Firestore
+    if (eligible) {
       setLoading(true);
-      try {
-        await addDoc(collection(db, "loans"), {
-          userId: user.uid,
-          loanAmount: principal,
-          loanTerm: months,
-          monthlyIncome: income,
-          currentDebts: debts,
-          monthlyPayment: payment,
-          totalInterest: interestPaid,
-          totalPayment: payment * months,
-          dtiRatio,
-          createdAt: serverTimestamp(),
-          status: "pending", // could be pending/approved/declined in real app
-        });
 
-        setSuccessMessage("Loan request submitted successfully! We will review it shortly.");
-        fetchUserLoans(user.uid); // Refresh loan history
+      // Simulate saving to backend
+      const mockLoan = {
+        id: `LN${Date.now()}`,
+        userId: user.uid,
+        loanAmount: principal,
+        loanTerm: months,
+        monthlyIncome: income,
+        currentDebts: debts,
+        monthlyPayment: payment,
+        totalInterest: interestPaid,
+        totalPayment: payment * months,
+        dtiRatio,
+        interestRate: interestRateAnnual,
+        createdAt: new Date().toISOString(),
+        status: "pending",
+      };
 
-        // Clear form
-        setLoanAmount("");
-        setLoanTerm("");
-        setMonthlyIncome("");
-        setCurrentDebts("");
-      } catch (err) {
-        setError("Failed to submit loan request. Please try again.");
-        console.error("Firestore error:", err);
-      }
+      const existing = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY)) || [];
+      existing.push(mockLoan);
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(existing));
+
+      setSuccessMessage("Loan request submitted successfully!");
+      fetchUserLoans(user.uid);
+      resetForm();
       setLoading(false);
-    } else {
-      // Not eligible
-      setEligibility(false);
-      setMonthlyPayment(payment);
-      const interestPaid = payment * months - principal;
-      setTotalInterest(interestPaid);
-      setTotalPayment(payment * months);
     }
+  };
+
+  const resetForm = () => {
+    setLoanAmount("");
+    setLoanTerm("");
+    setMonthlyIncome("");
+    setCurrentDebts("");
   };
 
   if (!user) {
@@ -199,206 +153,146 @@ const Loan = () => {
         Welcome, <span className="font-semibold">{user.email || user.displayName}</span>
       </p>
 
-      <form onSubmit={handleSubmit} className="space-y-6" aria-label="Loan request form">
+      <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <label htmlFor="loanAmount" className="block mb-2 font-semibold">
-            Loan Amount (KES)
-          </label>
+          <label htmlFor="loanAmount" className="block font-semibold mb-1">Loan Amount (KES)</label>
           <input
-            id="loanAmount"
             type="number"
-            min="0"
-            step="100"
+            id="loanAmount"
             value={loanAmount}
             onChange={(e) => setLoanAmount(e.target.value)}
-            placeholder="Enter desired loan amount"
-            className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="w-full border rounded px-4 py-2"
             required
-            aria-required="true"
           />
         </div>
 
         <div>
-          <label htmlFor="loanTerm" className="block mb-2 font-semibold">
-            Loan Term (Months)
-          </label>
+          <label htmlFor="loanTerm" className="block font-semibold mb-1">Loan Term (months)</label>
           <input
-            id="loanTerm"
             type="number"
-            min="1"
-            max="60"
+            id="loanTerm"
             value={loanTerm}
             onChange={(e) => setLoanTerm(e.target.value)}
-            placeholder="Enter loan duration in months (max 60)"
-            className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="w-full border rounded px-4 py-2"
             required
-            aria-required="true"
           />
         </div>
 
         <div>
-          <label htmlFor="monthlyIncome" className="block mb-2 font-semibold">
-            Monthly Income (KES)
-          </label>
+          <label htmlFor="monthlyIncome" className="block font-semibold mb-1">Monthly Income (KES)</label>
           <input
-            id="monthlyIncome"
             type="number"
-            min="0"
-            step="100"
+            id="monthlyIncome"
             value={monthlyIncome}
             onChange={(e) => setMonthlyIncome(e.target.value)}
-            placeholder="Enter your monthly income"
-            className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="w-full border rounded px-4 py-2"
             required
-            aria-required="true"
           />
         </div>
 
         <div>
-          <label htmlFor="currentDebts" className="block mb-2 font-semibold">
-            Current Monthly Debt Payments (KES)
-          </label>
+          <label htmlFor="currentDebts" className="block font-semibold mb-1">Current Debts (KES)</label>
           <input
-            id="currentDebts"
             type="number"
-            min="0"
-            step="100"
+            id="currentDebts"
             value={currentDebts}
             onChange={(e) => setCurrentDebts(e.target.value)}
-            placeholder="Enter total monthly debt payments (if any)"
-            className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-            aria-describedby="debtHelp"
+            className="w-full border rounded px-4 py-2"
           />
-          <small id="debtHelp" className="text-gray-500 text-sm">
-            Leave blank or 0 if none.
-          </small>
         </div>
 
-        <button
-          type="submit"
-          className={`w-full py-3 rounded-md font-semibold text-white ${
-            loading ? "bg-gray-400 cursor-not-allowed" : "bg-blue-700 hover:bg-blue-800"
-          } transition-colors`}
-          disabled={loading}
-          aria-busy={loading}
-          aria-label="Submit loan request"
-        >
-          {loading ? "Submitting..." : "Check Eligibility & Submit Loan Request"}
-        </button>
+        <div className="flex gap-4">
+          <button
+            type="submit"
+            className={`w-full py-2 rounded text-white font-bold ${
+              loading ? "bg-gray-400" : "bg-blue-700 hover:bg-blue-800"
+            }`}
+            disabled={loading}
+          >
+            {loading ? "Submitting..." : "Submit Loan Request"}
+          </button>
+
+          <button
+            type="button"
+            onClick={resetForm}
+            className="w-full py-2 border border-blue-500 text-blue-600 rounded hover:bg-blue-50"
+          >
+            Reset Form
+          </button>
+        </div>
       </form>
 
-      {error && (
-        <p
-          className="mt-4 text-red-600 font-semibold text-center"
-          role="alert"
-          aria-live="assertive"
-        >
-          {error}
-        </p>
-      )}
-
-      {successMessage && (
-        <p
-          className="mt-4 text-green-600 font-semibold text-center"
-          role="alert"
-          aria-live="polite"
-        >
-          {successMessage}
-        </p>
-      )}
+      {error && <p className="mt-4 text-red-600 text-center">{error}</p>}
+      {successMessage && <p className="mt-4 text-green-600 text-center">{successMessage}</p>}
 
       {eligibility !== null && (
-        <div
-          className="mt-6 p-4 border rounded-md bg-blue-50"
-          role="region"
-          aria-live="polite"
-          aria-atomic="true"
-        >
-          <h2 className="text-xl font-bold mb-3">
-            Loan Eligibility Result:
-          </h2>
-
-          {eligibility ? (
-            <p className="text-green-700 font-semibold mb-4">
-              Congratulations! You are eligible for the loan.
-            </p>
-          ) : (
-            <p className="text-red-700 font-semibold mb-4">
-              Unfortunately, you are not eligible for the loan based on your current financial situation.
-            </p>
-          )}
-
-          <ul className="list-disc list-inside space-y-1 text-gray-800">
-            <li>
-              Monthly Payment: <strong>KES {monthlyPayment.toFixed(2)}</strong>
-            </li>
-            <li>
-              Total Interest to be Paid: <strong>KES {totalInterest.toFixed(2)}</strong>
-            </li>
-            <li>
-              Total Amount to be Repaid: <strong>KES {totalPayment.toFixed(2)}</strong>
-            </li>
-            <li>
-              Debt-to-Income Ratio (Including this loan): <strong>{((currentDebts ? parseFloat(currentDebts) : 0) + monthlyPayment) / monthlyIncome >= 0 ? (((currentDebts ? parseFloat(currentDebts) : 0) + monthlyPayment) / monthlyIncome).toFixed(2) : "N/A"}</strong>
-            </li>
+        <div className="mt-6 p-4 border rounded bg-blue-50">
+          <h3 className="font-bold text-lg">Loan Calculation Result</h3>
+          <p className="mt-2 text-gray-800">
+            Eligibility:{" "}
+            <span className={`font-bold ${eligibility ? "text-green-600" : "text-red-600"}`}>
+              {eligibility ? "Eligible " : "Not Eligible "}
+            </span>
+          </p>
+          <ul className="mt-2 list-disc list-inside text-gray-700">
+            <li>Monthly Payment: KES {monthlyPayment?.toFixed(2)}</li>
+            <li>Total Interest: KES {totalInterest?.toFixed(2)}</li>
+            <li>Total Payment: KES {totalPayment?.toFixed(2)}</li>
+            <li>Interest Rate: {interestRateAnnual * 100}% per year</li>
           </ul>
         </div>
       )}
 
-      {/* Loan History */}
-      {loanHistory.length > 0 && (
-        <section
-          className="mt-10"
-          aria-labelledby="loanHistoryHeading"
-          role="region"
-        >
-          <h2
-            id="loanHistoryHeading"
-            className="text-2xl font-semibold mb-4 text-center text-blue-700"
+      <div className="mt-10">
+        <div className="flex justify-between items-center mb-2">
+          <h2 className="text-xl font-semibold">Loan History</h2>
+          <button
+            onClick={() => fetchUserLoans(user.uid)}
+            className="px-4 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
           >
-            Your Previous Loan Requests
-          </h2>
+            Refresh
+          </button>
+        </div>
+
+        {loanHistory.length === 0 ? (
+          <p className="text-gray-600">No previous loans found.</p>
+        ) : (
           <div className="overflow-x-auto">
-            <table className="min-w-full bg-white border border-gray-200 rounded-md">
-              <thead className="bg-blue-100">
+            <table className="w-full text-left border mt-2">
+              <thead className="bg-gray-100">
                 <tr>
-                  <th className="py-2 px-4 border-b">Date</th>
-                  <th className="py-2 px-4 border-b">Loan Amount (KES)</th>
-                  <th className="py-2 px-4 border-b">Term (Months)</th>
-                  <th className="py-2 px-4 border-b">Monthly Payment (KES)</th>
-                  <th className="py-2 px-4 border-b">Status</th>
+                  <th className="p-2">ID</th>
+                  <th className="p-2">Amount</th>
+                  <th className="p-2">Term</th>
+                  <th className="p-2">Monthly</th>
+                  <th className="p-2">Status</th>
+                  <th className="p-2">Date</th>
                 </tr>
               </thead>
               <tbody>
                 {loanHistory.map((loan) => (
-                  <tr
-                    key={loan.id}
-                    className="even:bg-gray-50 hover:bg-gray-100"
-                  >
-                    <td className="py-2 px-4 border-b text-center">
-                      {loan.createdAt?.seconds
-                        ? new Date(loan.createdAt.seconds * 1000).toLocaleDateString()
-                        : "Unknown"}
+                  <tr key={loan.id} className="border-t">
+                    <td className="p-2 text-sm">{loan.id}</td>
+                    <td className="p-2">KES {loan.loanAmount.toLocaleString()}</td>
+                    <td className="p-2">{loan.loanTerm} mo</td>
+                    <td className="p-2">KES {loan.monthlyPayment.toFixed(2)}</td>
+                    <td className="p-2">
+                      <span className="inline-block px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded">
+                        {loan.status}
+                      </span>
                     </td>
-                    <td className="py-2 px-4 border-b text-center">
-                      KES {loan.loanAmount.toLocaleString()}
-                    </td>
-                    <td className="py-2 px-4 border-b text-center">{loan.loanTerm}</td>
-                    <td className="py-2 px-4 border-b text-center">
-                      KES {loan.monthlyPayment.toFixed(2)}
-                    </td>
-                    <td className="py-2 px-4 border-b text-center capitalize">
-                      {loan.status || "Pending"}
+                    <td className="p-2 text-sm">
+                      {new Date(loan.createdAt).toLocaleString()}
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-        </section>
-      )}
+        )}
+      </div>
 
-      {/* Additional Loan Info */}
+            {/* Additional Loan Info */}
       <section
         className="mt-12 bg-blue-50 p-6 rounded-md"
         aria-label="Additional loan information and tips"

@@ -33,18 +33,6 @@ const LinkedAccounts = () => {
       bg: 'bg-red-50'
     },
     {
-      name: 'Facebook',
-      id: 'facebook',
-      icon: <Facebook size={20} className="text-blue-600" />,
-      bg: 'bg-blue-50'
-    },
-    {
-      name: 'GitHub',
-      id: 'github',
-      icon: <Github size={20} className="text-black" />,
-      bg: 'bg-gray-100'
-    },
-    {
       name: 'LinkedIn',
       id: 'linkedin',
       icon: <Linkedin size={20} className="text-blue-700" />,

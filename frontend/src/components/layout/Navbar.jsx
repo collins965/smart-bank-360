@@ -42,6 +42,7 @@ const Navbar = () => {
             <Link to="/services" className="hover:text-blue-300">Services</Link>
             <Link to="/contact" className="hover:text-blue-300">Contact</Link>
             <Link to="/loan" className="hover:text-blue-600 font-medium">Loan</Link>
+            <Link to="/transaction" className="hover:text-blue-300">Transact</Link>
             <Link to="/account" className="hover:text-blue-300">My Account</Link>
           </div>
 
@@ -65,15 +66,14 @@ const Navbar = () => {
           } transition-transform duration-300 ease-in-out z-50 md:hidden`}
         >
           <div className="p-6 space-y-4">
-           <div className="flex justify-end">
-  <button
-    onClick={toggleMobileMenu}
-    className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 mb-4"
-  >
-    Close
-  </button>
-</div>
-  
+            <div className="flex justify-end">
+              <button
+                onClick={toggleMobileMenu}
+                className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 mb-4"
+              >
+                Close
+              </button>
+            </div>
 
             <nav className="flex flex-col space-y-4">
               <Link to="/" onClick={toggleMobileMenu} className="hover:text-blue-300">Home</Link>
@@ -81,6 +81,7 @@ const Navbar = () => {
               <Link to="/services" onClick={toggleMobileMenu} className="hover:text-blue-300">Services</Link>
               <Link to="/contact" onClick={toggleMobileMenu} className="hover:text-blue-300">Contact</Link>
               <Link to="/loan" onClick={toggleMobileMenu} className="hover:text-blue-600 font-medium">Loan</Link>
+              <Link to="/transaction" onClick={toggleMobileMenu} className="hover:text-blue-300">Transact</Link>
               <Link to="/account" onClick={toggleMobileMenu} className="hover:text-blue-300">My Account</Link>
             </nav>
           </div>

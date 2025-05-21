@@ -1,47 +1,68 @@
 import React, { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { onAuthStateChanged } from 'firebase/auth';
-import { collection, query, where, onSnapshot, orderBy } from 'firebase/firestore';
-import { auth, db } from '../firebase';
+import { auth } from '../firebase';
+
+const mockTransactions = [
+  {
+    id: 'txn1',
+    date: new Date().getTime() / 1000 - 86400 * 1,
+    type: 'deposit',
+    amount: 15000,
+    status: 'completed',
+    reference: 'MPESA123ABC'
+  },
+  {
+    id: 'txn2',
+    date: new Date().getTime() / 1000 - 86400 * 2,
+    type: 'withdrawal',
+    amount: 5000,
+    status: 'pending',
+    reference: 'BANK987XYZ'
+  },
+  {
+    id: 'txn3',
+    date: new Date().getTime() / 1000 - 86400 * 4,
+    type: 'deposit',
+    amount: 8000,
+    status: 'completed',
+    reference: 'MPESA345JKL'
+  },
+  {
+    id: 'txn4',
+    date: new Date().getTime() / 1000 - 86400 * 5,
+    type: 'withdrawal',
+    amount: 2000,
+    status: 'failed',
+    reference: 'ATM000FAILED'
+  }
+];
 
 const TransactionHistory = () => {
   const [user, setUser] = useState(null);
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState('all');
+  const [sortOrder, setSortOrder] = useState('desc');
 
-  // Track login state
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       if (firebaseUser) {
         setUser(firebaseUser);
-        fetchTransactions(firebaseUser.uid);
+        loadSimulatedData();
       } else {
         setUser(null);
         setLoading(false);
       }
     });
-
     return () => unsubscribe();
   }, []);
 
-  // Fetch real-time transactions from Firestore
-  const fetchTransactions = (uid) => {
-    const q = query(
-      collection(db, 'transactions'),
-      where('userId', '==', uid),
-      orderBy('date', 'desc')
-    );
-
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const txns = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setTransactions(txns);
+  const loadSimulatedData = () => {
+    setTimeout(() => {
+      setTransactions(mockTransactions);
       setLoading(false);
-    });
-
-    return unsubscribe;
+    }, 1000); // Simulate delay
   };
 
   if (loading) {
@@ -54,16 +75,46 @@ const TransactionHistory = () => {
 
   if (!user) return <Navigate to="/login" />;
 
+  const filteredTransactions = transactions
+    .filter(txn => filter === 'all' || txn.type === filter)
+    .sort((a, b) => sortOrder === 'desc' ? b.date - a.date : a.date - b.date);
+
+  const totalAmount = filteredTransactions.reduce((sum, txn) => txn.type === 'deposit' ? sum + txn.amount : sum - txn.amount, 0);
+
   return (
     <div className="min-h-screen bg-gray-100 p-6">
-      <div className="max-w-5xl mx-auto bg-white shadow-md rounded-lg p-6">
-        <h1 className="text-2xl font-bold text-blue-800 mb-4">Transaction History</h1>
-        <p className="text-gray-600 mb-4">
-          View your recent transactions. This data updates in real-time from your SmartBank account.
-        </p>
+      <div className="max-w-6xl mx-auto bg-white shadow-lg rounded-lg p-6">
+        <h1 className="text-2xl font-bold text-blue-800 mb-2">Transaction History</h1>
+        <p className="text-gray-600 mb-4">Below is a summary of your account activity.</p>
 
-        {transactions.length === 0 ? (
-          <p className="text-gray-500">No transactions found.</p>
+        <div className="flex flex-wrap justify-between items-center mb-4 gap-4">
+          <div>
+            <p className="text-lg text-gray-700">Total Balance: <span className="font-semibold text-green-700">KES {totalAmount.toLocaleString()}</span></p>
+            <p className="text-sm text-gray-500">Transactions: {filteredTransactions.length}</p>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <select
+              className="border px-2 py-1 rounded text-sm"
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
+            >
+              <option value="all">All Types</option>
+              <option value="deposit">Deposit</option>
+              <option value="withdrawal">Withdrawal</option>
+            </select>
+
+            <button
+              onClick={() => setSortOrder(prev => prev === 'desc' ? 'asc' : 'desc')}
+              className="text-sm bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition"
+            >
+              Sort: {sortOrder === 'desc' ? 'Newest' : 'Oldest'}
+            </button>
+          </div>
+        </div>
+
+        {filteredTransactions.length === 0 ? (
+          <p className="text-gray-500">No matching transactions found.</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full text-sm text-left text-gray-700">
@@ -77,9 +128,9 @@ const TransactionHistory = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-100">
-                {transactions.map((txn) => (
+                {filteredTransactions.map((txn) => (
                   <tr key={txn.id}>
-                    <td className="px-4 py-2">{new Date(txn.date?.seconds * 1000).toLocaleDateString()}</td>
+                    <td className="px-4 py-2">{new Date(txn.date * 1000).toLocaleDateString()}</td>
                     <td className="px-4 py-2 capitalize">{txn.type}</td>
                     <td className="px-4 py-2">{txn.amount.toLocaleString()}</td>
                     <td className="px-4 py-2">
