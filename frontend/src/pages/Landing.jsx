@@ -3,10 +3,9 @@ import { Link } from 'react-router-dom';
 import bgImage from '../assets/pexels-tima-miroshnichenko-6266285.jpg';
 import loanImage from '../assets/pexels-jakubzerdzicki-30349323.jpg';
 import InvestmentImage from '../assets/pexels-pixabay-534216.jpg';
-import digitalwalltImage from "../assets/pexels-karolina-grabowska-5239819.jpg"
-import BankingImage from "../assets/pexels-mikhail-nilov-7534801.jpg"
-import timeimage from "../assets/pexels-rdne-7564246.jpg"
-import tourVideo from '../assets/20250516-0750-52.4027813.mp4';
+import digitalwalltImage from "../assets/pexels-karolina-grabowska-5239819.jpg";
+import BankingImage from "../assets/pexels-mikhail-nilov-7534801.jpg";
+import timeimage from "../assets/pexels-rdne-7564246.jpg";
 
 const Landing = () => {
   return (
@@ -16,108 +15,77 @@ const Landing = () => {
         <h1 className="text-4xl md:text-5xl font-bold mb-4">
           Your Smart Financial Partner 24/7
         </h1>
-          <Link to="/transaction">
-        <button className="bg-indigo-800 text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:bg-indigo-900 transition duration-300">
-          Start Transaction
-        </button>
-      </Link>
+        <Link to="/transaction">
+          <button className="bg-indigo-800 text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:bg-indigo-900 transition duration-300">
+            Start Transaction
+          </button>
+        </Link>
       </section>
 
       {/* Services Section */}
       <section className="py-12 px-6 max-w-6xl mx-auto">
         <h2 className="text-3xl font-bold text-center mb-10">Our Services</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          
-          {/* Personal & Business Accounts */}
-          <div
-       className="w-full h-[50vh] bg-center bg-cover flex items-center justify-center rounded-lg"
-       style={{
-         backgroundImage: `url(${bgImage})`,
-      }  }
-      >
-      <div className="bg-opacity-60 p-8 rounded-lg">
-      <h1 className="text-white text-4xl font-bold mb-4">Personal & Business Accounts</h1>
-       <p className="text-white text-lg">
-      Manage your finances with ease using our flexible personal and business account options.
-       </p>
-      </div>
-      </div>
 
+          {/* Personal & Business Accounts */}
+          <div className="w-full h-[50vh] bg-center bg-cover flex items-center justify-center rounded-lg" style={{ backgroundImage: `url(${bgImage})` }}>
+            <div className="bg-opacity-60 p-8 rounded-lg">
+              <h1 className="text-white text-4xl font-bold mb-4">Personal & Business Accounts</h1>
+              <p className="text-white text-lg">
+                Manage your finances with ease using our flexible personal and business account options.
+              </p>
+            </div>
+          </div>
 
           {/* Loans & Credit */}
-        <div
-       className="w-full h-[50vh] bg-center bg-cover flex items-center justify-center rounded-lg"
-       style={{
-         backgroundImage: `url(${loanImage})`,
-      }  }
-      >
-      <div className="bg-opacity-60 p-8 rounded-lg">
-      <h1 className="text-white text-4xl font-bold mb-4">Loans & Credit</h1>
-       <p className="text-white text-lg">
-      Manage your finances with ease using our flexible personal and business account options.
-       </p>
-      </div>
-      </div>
+          <div className="w-full h-[50vh] bg-center bg-cover flex items-center justify-center rounded-lg" style={{ backgroundImage: `url(${loanImage})` }}>
+            <div className="bg-opacity-60 p-8 rounded-lg">
+              <h1 className="text-white text-4xl font-bold mb-4">Loans & Credit</h1>
+              <p className="text-white text-lg">
+                Manage your finances with ease using our flexible personal and business account options.
+              </p>
+            </div>
+          </div>
 
-       {/* Investments */}
-          <div
-       className="w-full h-[50vh] bg-center bg-cover flex items-center justify-center rounded-lg"
-       style={{
-         backgroundImage: `url(${InvestmentImage})`,
-      }  }
-      >
-      <div className="bg-opacity-60 p-8 rounded-lg">
-      <h1 className="text-white text-4xl font-bold mb-4">Investments</h1>
-       <p className="text-white text-lg">
-      Grow your wealth with our secure investment plans and expert guidance.
-       </p>
-      </div>
-      </div>
-       
-      {/* Digital Wallet */}
-      <div
-       className="w-full h-[50vh] bg-center bg-cover flex items-center justify-center rounded-lg"
-       style={{
-         backgroundImage: `url(${digitalwalltImage})`,
-      }  }
-      >
-      <div className="bg-opacity-60 p-8 rounded-lg">
-      <h1 className="text-white text-4xl font-bold mb-4">Digital Wallet</h1>
-       <p className="text-white text-lg">
-      Enjoy seamless digital payments and instant transfers from anywhere.
-       </p>
-      </div>
-      </div>
+          {/* Investments */}
+          <div className="w-full h-[50vh] bg-center bg-cover flex items-center justify-center rounded-lg" style={{ backgroundImage: `url(${InvestmentImage})` }}>
+            <div className="bg-opacity-60 p-8 rounded-lg">
+              <h1 className="text-white text-4xl font-bold mb-4">Investments</h1>
+              <p className="text-white text-lg">
+                Grow your wealth with our secure investment plans and expert guidance.
+              </p>
+            </div>
+          </div>
 
-         {/* Mobile Banking App */}
-       <div
-       className="w-full h-[50vh] bg-center bg-cover flex items-center justify-center rounded-lg"
-       style={{
-         backgroundImage: `url(${BankingImage})`,
-      }  }
-      >
-      <div className="bg-opacity-60 p-8 rounded-lg">
-      <h1 className="text-white text-4xl font-bold mb-4">Mobile Banking App</h1>
-       <p className="text-white text-lg">
-      Bank on the go with our secure and user-friendly mobile app.
-       </p>
-      </div>
-      </div>
+          {/* Digital Wallet */}
+          <div className="w-full h-[50vh] bg-center bg-cover flex items-center justify-center rounded-lg" style={{ backgroundImage: `url(${digitalwalltImage})` }}>
+            <div className="bg-opacity-60 p-8 rounded-lg">
+              <h1 className="text-white text-4xl font-bold mb-4">Digital Wallet</h1>
+              <p className="text-white text-lg">
+                Enjoy seamless digital payments and instant transfers from anywhere.
+              </p>
+            </div>
+          </div>
+
+          {/* Mobile Banking App */}
+          <div className="w-full h-[50vh] bg-center bg-cover flex items-center justify-center rounded-lg" style={{ backgroundImage: `url(${BankingImage})` }}>
+            <div className="bg-opacity-60 p-8 rounded-lg">
+              <h1 className="text-white text-4xl font-bold mb-4">Mobile Banking App</h1>
+              <p className="text-white text-lg">
+                Bank on the go with our secure and user-friendly mobile app.
+              </p>
+            </div>
+          </div>
 
           {/* 24/7 Support */}
-          <div
-       className="w-full h-[50vh] bg-center bg-cover flex items-center justify-center rounded-lg"
-       style={{
-         backgroundImage: `url(${timeimage})`,
-      }  }
-      >
-      <div className="bg-opacity-60 p-8 rounded-lg">
-      <h1 className="text-white text-4xl font-bold mb-4">24/7 Support</h1>
-       <p className="text-white text-lg">
-     Get round-the-clock assistance with our dedicated customer support team.
-       </p>
-      </div>
-      </div>
+          <div className="w-full h-[50vh] bg-center bg-cover flex items-center justify-center rounded-lg" style={{ backgroundImage: `url(${timeimage})` }}>
+            <div className="bg-opacity-60 p-8 rounded-lg">
+              <h1 className="text-white text-4xl font-bold mb-4">24/7 Support</h1>
+              <p className="text-white text-lg">
+                Get round-the-clock assistance with our dedicated customer support team.
+              </p>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -128,14 +96,12 @@ const Landing = () => {
           <div>
             <h4 className="text-xl font-semibold mb-2">Security</h4>
             <p className="text-gray-700 mb-4">Your data and funds are protected with military-grade encryption.</p>
-
             <h4 className="text-xl font-semibold mb-2">24/7 Support</h4>
             <p className="text-gray-700 mb-4">Our team is always ready to help you—day or night.</p>
           </div>
           <div>
             <h4 className="text-xl font-semibold mb-2">Low Fees</h4>
             <p className="text-gray-700 mb-4">No hidden charges. Transparent and fair pricing always.</p>
-
             <h4 className="text-xl font-semibold mb-2">Fast Transactions</h4>
             <p className="text-gray-700 mb-4">Instant money transfers and real-time account updates.</p>
           </div>
@@ -183,24 +149,20 @@ const Landing = () => {
       </section>
 
       {/* Feature Tour */}
-{/* Feature Tour */}
-<section className="bg-indigo-100 py-12 px-6">
-  <h2 className="text-3xl font-bold text-center mb-10">Take a Quick Tour</h2>
-  <div className="flex justify-center">
-    <div className="w-full md:w-3/4 rounded-lg overflow-hidden shadow-lg">
-      <video
-        src={tourVideo}
-        autoPlay
-        muted
-        controls
-        className="w-full h-64 object-cover rounded-lg"
-      >
-        Your browser does not support the video tag.
-      </video>
-    </div>
-  </div>
-</section>
-
+      <section className="bg-indigo-100 py-12 px-6">
+        <h2 className="text-3xl font-bold text-center mb-10">Take a Quick Tour</h2>
+        <div className="flex justify-center">
+          <div className="w-full md:w-3/4 h-64 rounded-lg overflow-hidden shadow-lg">
+            <iframe
+              src="https://player.cloudinary.com/embed/?cloud_name=dehwllp4b&public_id=py64t2nh7rkjas9jnmgr&profile=cld-default&autoplay=true&loop=true&muted=true&controls=true"
+              allow="autoplay; fullscreen"
+              allowFullScreen
+              className="w-full h-full"
+              title="Smart Bank Tour"
+            />
+          </div>
+        </div>
+      </section>
 
       {/* Educational Content */}
       <section className="bg-gray-200 py-12 px-6 max-w-6xl mx-auto">
@@ -216,18 +178,6 @@ const Landing = () => {
               <p className="text-gray-700">{desc}</p>
             </div>
           ))}
-        </div>
-      </section>
-
-      {/* Call To Action */}
-      <section className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-12 px-6 text-center">
-        <h2 className="text-3xl font-bold mb-4">Ready to take control of your finances?</h2>
-        <div className="space-x-4">
-                    <Link to="/transaction">
-        <button className="bg-indigo-800 text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:bg-indigo-900 transition duration-300">
-          Start Transaction
-        </button>
-      </Link>
         </div>
       </section>
     </div>
